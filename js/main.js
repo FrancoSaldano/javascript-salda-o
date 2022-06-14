@@ -81,7 +81,6 @@ class Login {
     }
 }
 
-
 var registrar= new Register(prompt("registra este nick: "),prompt("registra esta contraseña: "))
 var logeo = new Login(prompt("nick: "), prompt("contraseña: "), registrar.enviar())
 logeo.login()
