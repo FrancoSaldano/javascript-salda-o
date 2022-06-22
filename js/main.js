@@ -1,5 +1,7 @@
 class Register {
     constructor(nickdata, passdata) {
+        this.nickdata = nickdata
+        this.passdata = passdata
         this.datauser = []
         this.datauser.push(nickdata)
         this.datauser.push(passdata)
@@ -7,15 +9,21 @@ class Register {
             return this.datauser
         }
     }
+    enviar() {
+        return this.datauser
+    }
+
 }
 
 class Login {
-    constructor(tryNick, tryPass, fn) {
+    constructor(tryNick, tryPass, dataUser) {
         this.datalogin = []
-        this.user = fn
+        this.user = dataUser
         this.datalogin.push(tryNick)
         this.datalogin.push(tryPass)
-        this.userr = ["admin", 1234]
+    }
+    get getNickname() {
+        return this.user[0]
     }
     alertSucces() {
         Swal.fire({
@@ -45,6 +53,21 @@ class Login {
             timer: 2000000
         })
     }
+    alertInputs() {
+        Swal.fire({
+            title: 'Multiple inputs',
+            html:
+                '<input id="swal-input1" class="swal2-input">' +
+                '<input id="swal-input2" class="swal2-input">',
+            focusConfirm: false,
+            preConfirm: () => {
+                return [
+                    document.getElementById('swal-input1').value,
+                    document.getElementById('swal-input2').value
+                ]
+            }
+        })
+    }
     attemptsPassword() {
         let count = 0
         let tryPassfunc
@@ -72,23 +95,71 @@ class Login {
     }
     login() {
         if (this.datalogin[0] == this.user[0] && this.datalogin[1] == this.user[1]) {
-            this.alertSucces()
+            this.alertSucces(), createTitleNickname(this.getNickname)
         } else if (this.compareArray(this.attemptsPassword(), this.user)) {
-            this.alertSucces()
+            this.alertSucces(), createTitleNickname(this.getNickname)
         } else {
             this.alertError()
         }
     }
 }
 
-var registrar = new Register(prompt("registra este nick: "), prompt("registra esta contraseña: "))
-var logeo = new Login(prompt("nick: "), prompt("contraseña: "), registrar.enviar())
-logeo.login()
+function getFormularioData() {
+    const formulario = document.querySelector('#formulario')
+    formulario.addEventListener("submit", registrarData)
 
-//////
+    let registrar
+    function registrarData(eventObject) {
+        eventObject.preventDefault();
+        let inputnick = document.getElementById('input--nick').value
+        let inputpass = document.getElementById('input--pass').value
+        registrar = new Register(inputnick, inputpass)
+        sessionStorage.setItem("dataUser", JSON.stringify(registrar.enviar()))
+    }
+}
 
-let userName = document.createElement('h2')
-userName.innerHTML = `Bienvenido! ${registrar.enviar()[0]}`
-let containerEspecial = document.querySelector('div.container--especial')
-containerEspecial.append(userName)
-userName.classList.add('p-5')
+function getActionBtn() {
+    const btnlogin = document.querySelector('.btn--login')
+    btnlogin.addEventListener("click", alertDeLogeo)
+
+    function alertDeLogeo() {
+        Swal.fire({
+            title: 'Hora de logearse!!!',
+            html:
+                '<label for="InputText" class="form-label m-1">Ingresa tu nombre de usuario</label>' +
+                '<input id="swal-input1" class="swal2-input" placeholder="usuario">' +
+                '<label for="InputText" class="form-label m-1">Ingresa tu contraseña</label>' +
+                '<input id="swal-input2" class="swal2-input" placeholder="contraseña">',
+            focusConfirm: false,
+            preConfirm: () => {
+                return [
+                    valueinputnick = document.getElementById('swal-input1').value, valueinputpass = document.getElementById('swal-input2').value,
+                    sessionStorage.setItem("user", valueinputnick),
+                    sessionStorage.setItem("pass", valueinputpass),
+
+                    user = sessionStorage.getItem('user'), pass = sessionStorage.getItem('pass'), dataUser = JSON.parse(sessionStorage.getItem('dataUser')),
+                    logeo = new Login(user, pass, dataUser),
+                    console.log(`se envio a comparar usuario: ${user} pass: ${pass}`),
+                    logeo.login()
+                ]
+            }
+        })
+    }
+}
+
+// var registrar= new Register(prompt("nick: "),prompt("nick: "))
+// var logeo = new Login(sessionStorage.getItem('user'), sessionStorage.getItem('pass'), JSON.parse(sessionStorage.getItem('dataUser')))
+// logeo.login()
+// console.log(registrar.enviar())
+getFormularioData()
+getActionBtn()
+
+function createTitleNickname(nickname) {
+    let userName = document.createElement('h2')
+    userName.innerHTML = `Bienvenido! ${nickname}`
+    let containerEspecial = document.querySelector('div.container--especial')
+    containerEspecial.append(userName)
+    userName.classList.add('p-5')
+    userName.classList.add('title--nick')
+
+}
