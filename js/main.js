@@ -1,3 +1,14 @@
+
+// didOpen: (toast) => {
+//     toast=document.querySelector('.btn--register')
+//     toast.addEventListener('mouseenter', Swal.stopTimer)
+//     toast.addEventListener('mouseleave', Swal.resumeTimer)
+// }
+
+// Toast.fire({
+// })
+
+
 class Register {
     constructor(nickdata, passdata) {
         this.nickdata = nickdata
@@ -12,7 +23,20 @@ class Register {
     enviar() {
         return this.datauser
     }
-
+    alertRegisted() {
+        const btnRegist = document.getElementById('btn--register')
+        btnRegist.addEventListener("click",
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                icon: 'success',
+                title: 'Signed in successfully'
+            })
+        )
+    }
 }
 
 class Login {
@@ -56,6 +80,8 @@ class Login {
     alertInputs() {
         Swal.fire({
             title: 'Multiple inputs',
+            backdrop: `rgb(127, 179, 213 )`,
+            showCloseButton: true,
             html:
                 '<input id="swal-input1" class="swal2-input">' +
                 '<input id="swal-input2" class="swal2-input">',
@@ -115,11 +141,13 @@ function getFormularioData() {
         let inputpass = document.getElementById('input--pass').value
         registrar = new Register(inputnick, inputpass)
         sessionStorage.setItem("dataUser", JSON.stringify(registrar.enviar()))
+        formulario.addEventListener("click",registrar.alertRegisted())
     }
+
 }
 
 function getActionBtn() {
-    const btnlogin = document.querySelector('.btn--login')
+    const btnlogin = document.getElementById('btn--login')
     btnlogin.addEventListener("click", alertDeLogeo)
 
     function alertDeLogeo() {
