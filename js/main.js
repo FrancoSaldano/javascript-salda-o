@@ -1,14 +1,3 @@
-
-// didOpen: (toast) => {
-//     toast=document.querySelector('.btn--register')
-//     toast.addEventListener('mouseenter', Swal.stopTimer)
-//     toast.addEventListener('mouseleave', Swal.resumeTimer)
-// }
-
-// Toast.fire({
-// })
-
-
 class Register {
     constructor(nickdata, passdata) {
         this.nickdata = nickdata
@@ -175,10 +164,6 @@ function getActionBtn() {
     }
 }
 
-// var registrar= new Register(prompt("nick: "),prompt("nick: "))
-// var logeo = new Login(sessionStorage.getItem('user'), sessionStorage.getItem('pass'), JSON.parse(sessionStorage.getItem('dataUser')))
-// logeo.login()
-// console.log(registrar.enviar())
 getFormularioData()
 getActionBtn()
 
