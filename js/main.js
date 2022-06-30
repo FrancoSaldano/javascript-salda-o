@@ -3,11 +3,8 @@ class Register {
         this.nickdata = nickdata
         this.passdata = passdata
         this.datauser = []
-        this.datauser.push(nickdata)
-        this.datauser.push(passdata)
-        this.enviar = function () {
-            return this.datauser
-        }
+        this.datauser.push(this.nickdata)
+        this.datauser.push(this.passdata)
     }
     enviar() {
         return this.datauser
@@ -27,11 +24,11 @@ class Register {
         )
     }
 }
-
 class Login {
-    constructor(tryNick, tryPass, dataUser) {
+    constructor(tryNick, tryPass) {
         this.datalogin = []
-        this.user = dataUser
+        this.tryNick = tryNick
+        this.tryPass = tryPass
         this.datalogin.push(tryNick)
         this.datalogin.push(tryPass)
     }
@@ -83,22 +80,6 @@ class Login {
             }
         })
     }
-    attemptsPassword() {
-        let count = 0
-        let tryPassfunc
-        let tryNickfunc
-        let result = []
-        alert("Solamente tiene 3 intentos")
-        for (let i = 0; (i <= 2) && (tryPassfunc != this.user[1]) && (tryNickfunc != this.user[0]); i++) {
-            count += 1
-            alert("Intento número: " + count)
-            if (this.user[1] != tryPassfunc && this.user[0] != tryNickfunc) {
-                tryNickfunc = prompt("Ingrese el nick:  " + this.user[0]).toString()
-                tryPassfunc = prompt("Ingrese la contraseña: " + this.user[1]).toString()
-            }
-        } result.push(tryNickfunc), result.push(tryPassfunc)
-        return result
-    }
     compareArray(array1, array2) {
         var i = array1.length;
         if (i != array2.length) return false;
@@ -108,62 +89,152 @@ class Login {
         }
         return true;
     }
-    login() {
-        if (this.datalogin[0] == this.user[0] && this.datalogin[1] == this.user[1]) {
-            this.alertSucces(), createTitleNickname(this.getNickname)
-        } else if (this.compareArray(this.attemptsPassword(), this.user)) {
-            this.alertSucces(), createTitleNickname(this.getNickname)
+
+    attemptsPasswordNew() {
+        let count = 0
+        let tryPassfunc = this.tryPass
+        let tryNickfunc = this.tryNick
+        alert("Solamente tiene 3 intentos")
+        for (let i = 0; (i <= 2); i++) {
+            count += 1
+            alert("Intento número: " + count)
+            tryNickfunc = prompt("Ingrese el nick:  ").toString()
+            tryPassfunc = prompt("Ingrese la contraseña: ").toString()
+            if (buscarLocal(tryNickfunc, tryPassfunc)) {
+                return true
+            } else {
+                continue
+            }
+        } buscarLocal(tryNickfunc, tryPassfunc)
+    }
+    loginNew(nick, pass) {
+        if (buscarLocal(nick, pass)) {
+            this.alertSucces(), createTitleNickname("aca va el nickname")
+        } else if (this.attemptsPasswordNew()) {
+            this.alertSucces(), createTitleNickname("aca va el nickname")
         } else {
             this.alertError()
         }
     }
 }
+class User {
+    constructor(nick, pass) {
+        this.nick = nick
+        this.pass = pass
+    }
+}
+
+const buscarLocal = (nick, pass) => {
+    let datos = takeFromLocal('usuarios')
+    let hayIgual = false
+    for (let usuario of datos) {
+        if (usuario.nick == nick && usuario.pass == pass) {
+            hayIgual = true
+            break
+        }
+    } return hayIgual
+}
+function alertDeLogeo() {
+    Swal.fire({
+        title: 'Hora de logearse!!!',
+        html:
+            '<label for="InputText" class="form-label m-1">Ingresa tu nombre de usuario</label>' +
+            '<input id="swal-input1" class="swal2-input" placeholder="usuario">' +
+            '<label for="InputText" class="form-label m-1">Ingresa tu contraseña</label>' +
+            '<input id="swal-input2" class="swal2-input" placeholder="contraseña">',
+        focusConfirm: false,
+        preConfirm: () => {
+            return [
+                valueinputnick = document.getElementById('swal-input1').value, valueinputpass = document.getElementById('swal-input2').value,
+
+                logeo = new Login(valueinputnick, valueinputpass),
+                console.log(`se envio a comparar usuario: ${valueinputnick} pass: ${valueinputpass}`),
+                logeo.loginNew(valueinputnick, valueinputpass)
+            ]
+        }
+    })
+}
+function alertUserNotExist() {
+    const btnRegist = document.getElementById('btn--register')
+    btnRegist.addEventListener("click",
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: true,
+            timer: 20000,
+            timerProgressBar: true,
+            icon: 'warning',
+            title: 'Debe registrar un usuario primero'
+        })
+    )
+}
+const guardarLocal = (clave, valor) => {
+    localStorage.setItem(clave, valor)
+}
+const agregarUsuario = (object) => {
+    usuarios.push(object)
+    console.log(`se agregó el usuario ${object.nick}`)
+}
+const takeFromLocal = (key) => {
+    return JSON.parse(localStorage.getItem(key))
+}
+const actualizarLocal = () => {
+    localStorage.clear()
+    let key = 1
+    for (const usuario of usuarios) {
+        guardarLocal(key, JSON.stringify(usuario))
+        key++
+    }
+    guardarLocal('usuarios', JSON.stringify(usuarios))
+    console.log("contenido actualizado")
+}
+const verificarUsuario = () => {
+    if (takeFromLocal('usuarios') == null) {
+        verificarContenidoLocal()
+    } else if (takeFromLocal('usuarios').length == 0) {
+        console.log("no hay usuarios registrados")
+        alertUserNotExist()
+    } else {
+        console.log("hay usuarios registrados procede a logear")
+        alertDeLogeo()
+    }
+}
+const verificarContenidoLocal = () => {
+    let usuariosEnLS = takeFromLocal('usuarios')
+    if (usuariosEnLS == null) {
+        console.log("En el local storage no hay nada")
+        usuarios = []
+        guardarLocal('usuarios', JSON.stringify(usuarios))
+    } else {
+        usuarios = usuariosEnLS.slice()
+        console.log("hay algo en el local storage", usuarios)
+    }
+}
+let usuarios = []
 
 function getFormularioData() {
     const formulario = document.querySelector('#formulario')
     formulario.addEventListener("submit", registrarData)
-
     let registrar
     function registrarData(eventObject) {
         eventObject.preventDefault();
         let inputnick = document.getElementById('input--nick').value
         let inputpass = document.getElementById('input--pass').value
+        usuarioNuevo = new User(inputnick, inputpass)
         registrar = new Register(inputnick, inputpass)
-        sessionStorage.setItem("dataUser", JSON.stringify(registrar.enviar()))
-        formulario.addEventListener("click",registrar.alertRegisted())
+        agregarUsuario(usuarioNuevo)
+        guardarLocal('usuarios', usuarios)
+        actualizarLocal()
+        // sessionStorage.setItem("dataUser", JSON.stringify(registrar.enviar()))//manda los input al sesion -> manda los input al local
+        formulario.addEventListener("click", registrar.alertRegisted())
     }
-
 }
-
 function getActionBtn() {
     const btnlogin = document.getElementById('btn--login')
-    btnlogin.addEventListener("click", alertDeLogeo)
-
-    function alertDeLogeo() {
-        Swal.fire({
-            title: 'Hora de logearse!!!',
-            html:
-                '<label for="InputText" class="form-label m-1">Ingresa tu nombre de usuario</label>' +
-                '<input id="swal-input1" class="swal2-input" placeholder="usuario">' +
-                '<label for="InputText" class="form-label m-1">Ingresa tu contraseña</label>' +
-                '<input id="swal-input2" class="swal2-input" placeholder="contraseña">',
-            focusConfirm: false,
-            preConfirm: () => {
-                return [
-                    valueinputnick = document.getElementById('swal-input1').value, valueinputpass = document.getElementById('swal-input2').value,
-                    sessionStorage.setItem("user", valueinputnick),
-                    sessionStorage.setItem("pass", valueinputpass),
-
-                    user = sessionStorage.getItem('user'), pass = sessionStorage.getItem('pass'), dataUser = JSON.parse(sessionStorage.getItem('dataUser')),
-                    logeo = new Login(user, pass, dataUser),
-                    console.log(`se envio a comparar usuario: ${user} pass: ${pass}`),
-                    logeo.login()
-                ]
-            }
-        })
-    }
+    btnlogin.addEventListener("click", verificarUsuario)
 }
 
+verificarContenidoLocal()
 getFormularioData()
 getActionBtn()
 
