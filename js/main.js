@@ -234,6 +234,7 @@ function getActionBtn() {
     btnlogin.addEventListener("click", verificarUsuario)
 }
 
+
 verificarContenidoLocal()
 getFormularioData()
 getActionBtn()
