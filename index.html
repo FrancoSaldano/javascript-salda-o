@@ -28,7 +28,7 @@
                 xlink:href="https://i.imgur.com/uCAOTnU.jpg" preserveAspectRatio="xMidYMid slice"></image>
         </svg>
     </div>
-    <h2 class="text-center text-light">Funciones de Orden Superior - Register y Login - Franco Saldaño</h2>
+    <h2 class="text-center text-light">- Register y Login - Franco Saldaño</h2>
     <div class="container">
         <form id="formulario">
             <div class="mb-3">
@@ -40,15 +40,18 @@
                 <input type="password" class="form-control" id="input--pass">
             </div>
             <div class="mb-3 form-check">
-                <input type="checkbox" class="form-check-input" id="check">
-                <label class="form-check-label text-light" for="exampleCheck1">No hace nada :D</label>
+                <label class="form-check-label text-light">Ver contraseña</label>
+                <input type="checkbox" class="form-check-input check" id="check">
             </div>
             <button type="submit" id="btn--register" class="btn btn-primary">Registrarme</button>
 
             <button type="button" id="btn--login" class="btn btn-success float-end">Login</button>
         </form>
-        <div class="container container--userlist bg-light mt-5 pb-3 rounded-bottom" >
+        <div class="container  bg-light mt-5 pb-3 rounded-bottom" >
+            <h2 class="text-center">Herramientas de administrador</h2>
             <button type="button" id="btn--clear" class="btn btn-warning mt-3 mb-5 mx-2 rounded-pill">Clear Users</button>
+            <ol class="ol--userlist list-group-flush ">
+            </ol>
         </div>
     </div>
 
@@ -64,7 +67,10 @@
         integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
         crossorigin="anonymous"></script>
     <script src="./node_modules/sweetalert2/dist/sweetalert2.all.min.js"></script>
+    <script src="./js/local.js"></script>
+    <script src="./js/class.js"></script>
     <script src="./js/main.js"></script>
+
 </body>
 
 </html>
