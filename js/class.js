@@ -2,26 +2,6 @@ class Register {
     constructor(nickdata, passdata) {
         this.nickdata = nickdata
         this.passdata = passdata
-        this.datauser = []
-        this.datauser.push(this.nickdata)
-        this.datauser.push(this.passdata)
-    }
-    enviar() {
-        return this.datauser
-    }
-    alertRegisted() {
-        const btnRegist = document.getElementById('btn--register')
-        btnRegist.addEventListener("click",
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-                icon: 'success',
-                title: 'Signed in successfully'
-            })
-        )
     }
 }
 class Login {
@@ -31,9 +11,6 @@ class Login {
         this.tryPass = tryPass
         this.datalogin.push(tryNick)
         this.datalogin.push(tryPass)
-    }
-    get getNickname() {
-        return this.user[0]
     }
     alertSucces() {
         Swal.fire({
@@ -82,18 +59,8 @@ class Login {
             }
         })
     }
-    compareArray(array1, array2) {
-        var i = array1.length;
-        if (i != array2.length) return false;
-
-        while (i--) {
-            if (array1[i] !== array2[i]) return false;
-        }
-        return true;
-    }
     attemptsPasswordNew() {
         let count = 0
-        let tryPackage = []
         let tryPassfunc = this.tryPass
         let tryNickfunc = this.tryNick
         alert("Solamente tiene 3 intentos")
@@ -102,18 +69,38 @@ class Login {
             alert("Intento número: " + count)
             tryNickfunc = prompt("Ingrese el nick:  ").toString()
             tryPassfunc = prompt("Ingrese la contraseña: ").toString()
-            if (buscarLocal(tryNickfunc, tryPassfunc)) {
+            if (searchInLocal(tryNickfunc, tryPassfunc)) {
                 return true
             } else {
                 continue
             }
-        } buscarLocal(tryNickfunc, tryPassfunc)
+        } searchInLocal(tryNickfunc, tryPassfunc)
     }
     loginNew(nick, pass) {
-        if (buscarLocal(nick, pass)) {
-            this.alertSucces(), createTitleNickname(`${nick}`)
+        if (searchInLocal(nick, pass)) {
+            this.alertSucces()
+            setLoged(nick)
+            checkTitle()
+                .then((nick) => {
+                    eliminateTitleNickname()
+                    createTitleNickname(nick)
+                })
+                .catch((error) => {
+                    console.log(`Habia usuarios logeados? ${error ? "no": "si"}`)
+                    createTitleNickname(nick)
+                })
         } else if (this.attemptsPasswordNew()) {
-            this.alertSucces(), createTitleNickname("aca va el nickname")
+            this.alertSucces()
+            setLoged(nick)
+            checkTitle()
+                .then((nick) => {
+                    eliminateTitleNickname()
+                    createTitleNickname(nick)
+                })
+                .catch((error) => {
+                    console.log(`Habia usuarios logeados? ${error ? "no": "si"}`)
+                    createTitleNickname(nick)
+                })
         } else {
             this.alertError()
         }
@@ -126,7 +113,7 @@ class User {
     }
 }
 class Alert {
-    alertUserNotExist() {
+    UserNotExist() {
         Swal.fire({
             toast: true,
             position: 'top-end',
@@ -137,7 +124,7 @@ class Alert {
             title: 'Debe registrar un usuario primero'
         })
     }
-    alertRegisted() {
+    Registed() {
         const btnRegist = document.getElementById('btn--register')
         btnRegist.addEventListener("click",
             Swal.fire({
@@ -147,7 +134,7 @@ class Alert {
                 timer: 3000,
                 timerProgressBar: true,
                 icon: 'success',
-                title: 'Signed in successfully'
+                title: 'Registrado con éxito!'
             })
         )
     }
@@ -216,7 +203,7 @@ class Alert {
             }
         })
     }
-    alertClear() {
+    Clear() {
         Swal.fire({
             toast: true,
             position: 'center',
@@ -227,4 +214,5 @@ class Alert {
             title: 'se eliminaron todos los usuarios'
         })
     }
+    
 }

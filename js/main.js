@@ -1,11 +1,11 @@
-let usuarios = []
-const alerta = new Alert()
-
-let inputpass = document.getElementById('input--pass')
+let usuarios = [];
+const alerts = new Alert();
+const userList = document.querySelector('ol.ol--userlist');
+let fragmento = document.createDocumentFragment();
+let inputpass = document.getElementById('input--pass');
 let toggle = document.querySelector('.check')
-toggle.addEventListener('change',(e) => {
-    inputpass.type = e.target.checked ? "text" : "password"
-})
+
+
 
 
 function alertDeLogeo() {
@@ -28,7 +28,6 @@ function alertDeLogeo() {
         }
     })
 }
-
 function alertUserNotExist() {
     const btnRegist = document.getElementById('btn--register')
     btnRegist.addEventListener("click",
@@ -44,58 +43,81 @@ function alertUserNotExist() {
     )
 }
 
+const agregarFetchToUsuarios = () => {
+    fetch("JSON/info.JSON")
+        .then((res) => res.json())
+        .then((data) => {
+            data.forEach((user) => {
+                usuarios.push(user)
+            })
+            updateLocal()
+        })
+        .catch((error) => console.warn(error))
+
+}
 const agregarUsuario = (object) => {
     usuarios.push(object)
     console.log(`se agregó el usuario ${object.nick}`)
 }
-
 const verificarUsuario = () => {
-    if (takeFromLocal('usuarios') == null) {
-        verificarContenidoLocal()
-    } else if (takeFromLocal('usuarios').length == 0) {
+    if (getFromLocal('usuarios') == null) {
+        verifyLocalStorageContent()
+    } else if (getFromLocal('usuarios').length == 0) {
         console.log("no hay usuarios registrados")
-        alertUserNotExist()
+        alerts.UserNotExist()
     } else {
         console.log("hay usuarios registrados procede a logear")
         alertDeLogeo()
     }
 }
 
+///  DOM
+
+toggle.addEventListener('change', (e) => {
+    inputpass.type = e.target.checked ? "text" : "password"
+})
+
 function getFormularioData() {
     const formulario = document.querySelector('#formulario')
     formulario.addEventListener("submit", registrarData)
-    let registrar
     function registrarData(eventObject) {
         eventObject.preventDefault();
         let inputnick = document.getElementById('input--nick').value
         let inputpass = document.getElementById('input--pass').value
         usuarioNuevo = new User(inputnick, inputpass)
-        registrar = new Register(inputnick, inputpass)
         agregarUsuario(usuarioNuevo)
-        guardarLocal('usuarios', usuarios)
-        actualizarLocal()
+        setInLocal('usuarios', usuarios)
+        updateLocal()
+        formulario.addEventListener("click", alerts.Registed())
         createUsersList()
-        formulario.addEventListener("click", registrar.alertRegisted())
     }
 }
-
-function getActionBtn() {
+function getLoginBtn() {
     const btnlogin = document.getElementById('btn--login')
     btnlogin.addEventListener("click", verificarUsuario)
 }
-
 function getClearBtn() {
     const btnclear = document.querySelector('#btn--clear')
     btnclear.addEventListener("click", () => {
         localStorage.clear()
         verificarUsuario()
-        actualizarLocal()
-        alerta.alertClear()
-        document.querySelector('h2.title--nick') != null ? this.remove() : false ;
+        updateLocal()
+        eliminateTitleNickname()
+        eliminateUserList()
         createUsersList()
+        alerts.Clear()
     })
 }
 
+
+function checkTitleNickname() {
+    setTimeout(() => {
+        return document.querySelector('.title--nick') ? true : false
+    }, 0)
+}
+function eliminateTitleNickname() {
+    document.querySelector('.title--nick') == null ? console.log("no hay titulo") : document.querySelector('.title--nick').remove()
+}
 function createTitleNickname(nickname) {
     let h2 = document.createElement('h2')
     h2.innerHTML = `Bienvenido! ${nickname}`
@@ -105,24 +127,74 @@ function createTitleNickname(nickname) {
     h2.classList.add('title--nick')
 }
 
-function createUsersList() {
-    let userList = document.querySelector('ol.ol--userlist')
-    let user = document.createElement('li')
-    if (usuarios.length != 0) {
-        for (const usuario of usuarios) {
-            let { nick } = usuario
-            user.innerHTML = `${nick}`
-            userList.append(user)
-            user.classList.add('p-2'), user.classList.add('list-group-item'), user.classList.add('usuario')
-        }
-    } else {
-        user.innerHTML = "No hay usuarios"
-        userList.append(user)
-        user.classList.add('p-2'), user.classList.add('list-group-item'), user.classList.add('usuario')
+
+function eliminateUserList() {
+    while (userList.firstChild) {
+        userList.removeChild(userList.firstChild);
     }
 }
+function createUsersList() {
+    if (usuarios.length > 0) {
+        eliminateUserList()
+        usuarios.forEach((usuario) => {
+            const user = document.createElement('LI')
+            let { nick } = usuario
+            let { pass } = usuario
+            user.innerHTML = `<b>UserName:</b> ${nick}    <b>Password:</b> ${pass}`
+            user.classList.add('p-2'), user.classList.add('list-group-item'), user.classList.add('usuario')
+            userList.appendChild(user)
+        })
+    } else {
+        const user = document.createElement('LI')
+        user.innerHTML = "No hay usuarios"
+        user.classList.add('p-2'), user.classList.add('list-group-item'), user.classList.add('no-users')
+        fragmento.appendChild(user)
+    }
+    userList.appendChild(fragmento)
+}
 
+
+
+///promises , Async & Fetch Local
+const checkTitle = () => {
+    return new Promise((resolve, reject) => {
+        let titulo = document.querySelector('.title--nick')
+        let nick = localStorage.getItem('LOGEADO')
+        titulo ? resolve(nick) : reject(nick)
+    })
+}
+
+checkLoged()
+    .then((nick) => {
+        console.log(`Bienvenido, ${nick}`)
+        createTitleNickname(nick)
+    })
+    .catch((error) => {
+        console.log(`Habia usuarios logeados? ${error && "no"}`)
+    })
+
+fetch("JSON/info.JSON")
+    .then((res) => res.json())
+    .then((data) => {
+        data.forEach((user) => {
+            const liuser = document.createElement('LI')
+            let { nick } = user
+            let { pass } = user
+            liuser.innerHTML = `<b>UserName:</b> ${nick}  <b>Password:</b> ${pass}`
+            liuser.classList.add('p-2'), liuser.classList.add('list-group-item'), liuser.classList.add('usuario')
+            userList.appendChild(liuser)
+        })
+        
+    })
+    .catch((error) => {
+        console.warn(error)
+    })
+
+
+//calls
+agregarFetchToUsuarios()
+verifyLocalStorageContent()
+createUsersList()
 getClearBtn()
-verificarContenidoLocal()
 getFormularioData()
-getActionBtn()
+getLoginBtn()

@@ -33,11 +33,11 @@
         <form id="formulario">
             <div class="mb-3">
                 <label for="InputText" class="form-label text-light">Ingresa tu nombre de usuario</label>
-                <input type="text" class="form-control" id="input--nick">
+                <input type="text" class="form-control" id="input--nick" required="true">
             </div>
             <div class="mb-3">
                 <label for="InputPassword" class="form-label text-light">Ingresa tu Contraseña</label>
-                <input type="password" class="form-control" id="input--pass">
+                <input type="password" class="form-control" id="input--pass" required="true">
             </div>
             <div class="mb-3 form-check">
                 <label class="form-check-label text-light">Ver contraseña</label>
@@ -50,8 +50,7 @@
         <div class="container  bg-light mt-5 pb-3 rounded-bottom" >
             <h2 class="text-center">Herramientas de administrador</h2>
             <button type="button" id="btn--clear" class="btn btn-warning mt-3 mb-5 mx-2 rounded-pill">Clear Users</button>
-            <ol class="ol--userlist list-group-flush ">
-            </ol>
+            <ol class="ol--userlist list-group-flush "></ol>
         </div>
     </div>
 
