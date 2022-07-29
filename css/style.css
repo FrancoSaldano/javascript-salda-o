@@ -1,3 +1,38 @@
 svg {
     width: 25%;
 }
+body{
+    background-image: url(Project1.jpg) !important;
+}
+.multiply{
+    mix-blend-mode: multiply;
+  }
+.border-black{
+    border-color: black !important;
+  }
+hr{
+    color: black !important;
+}
+p{
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+a{
+  color:rgb(182, 116, 94);
+}
+a:hover{
+  color: rgb(97, 95, 75);
+}
+body.swal2-shown > [aria-hidden="true"] {
+  transition: 0.1s filter;
+  filter: blur(10px);
+}
+input#swal-input1:focus,input#swal-input2:focus,input#input--nick:focus,input#input--pass:focus{
+  border: 1px solid #ffc107 !important;
+  box-shadow: none !important;
+}
+label.swal2-checkbox{
+  background: #343a40 !important;
+}
+button.swal2-confirm.swal2-styled,button.swal2-confirm.swal2-styled{
+  background-color: #b68a05 !important;
+}
