@@ -1,59 +1,82 @@
-let usuarios = [];
-const alerts = new Alert();
-const userList = document.querySelector('ol.ol--userlist');
-let fragmento = document.createDocumentFragment();
-let inputpass = document.getElementById('input--pass');
-let toggle = document.querySelector('.check')
-
-
-
-
 function alertDeLogeo() {
     Swal.fire({
-        title: 'Hora de logearse!!!',
-        html:
-            '<label for="InputText" class="form-label m-1">Ingresa tu nombre de usuario</label>' +
-            '<input id="swal-input1" class="swal2-input" placeholder="usuario">' +
-            '<label for="InputText" class="form-label m-1">Ingresa tu contraseña</label>' +
-            '<input id="swal-input2" class="swal2-input" placeholder="contraseña">',
+        footer: ALERTLOGFOOTER,
+        background: '#343a40',
+        color: '#fff',
+        input: 'checkbox',
+        inputValue: 0,
+        inputPlaceholder: ALERTLOGPLACEHOLDER,
+        inputValidator: (result) => { return !result && 'Tienes que estar de acuerdo con Términos y Condiciones' },
+        html: ALERTALOGDOM,
         focusConfirm: false,
         preConfirm: () => {
-            return [
-                valueinputnick = document.getElementById('swal-input1').value, valueinputpass = document.getElementById('swal-input2').value,
-
-                logeo = new Login(valueinputnick, valueinputpass),
-                console.log(`se envio a comparar usuario: ${valueinputnick} pass: ${valueinputpass}`),
-                logeo.loginNew(valueinputnick, valueinputpass)
-            ]
+            const valueinputnick = Swal.getPopup().querySelector('#swal-input1').value
+            const valueinputpass = Swal.getPopup().querySelector('#swal-input2').value
+            if (!valueinputpass || !valueinputnick) {
+                Swal.showValidationMessage(`Porfavor ingrese su usuario y su contraseña`)
+            } else if (!searchInLocal(valueinputnick, valueinputpass)) {
+                Swal.showValidationMessage(`Este usuario y/o contraseña no existe`)
+            } else {
+                return [
+                    logeo = new Login(valueinputnick, valueinputpass),
+                    console.log(`se envio a comparar usuario: ${valueinputnick} pass: ${valueinputpass}`),
+                    logeo.loginNew(valueinputnick, valueinputpass)
+                ]
+            }
         }
     })
 }
-function alertUserNotExist() {
-    const btnRegist = document.getElementById('btn--register')
-    btnRegist.addEventListener("click",
-        Swal.fire({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: true,
-            timer: 20000,
-            timerProgressBar: true,
-            icon: 'warning',
-            title: 'Debe registrar un usuario primero'
-        })
-    )
+function alertDeRegistrar() {
+    Swal.fire({
+        footer: ALERTREGFOOTER,
+        background: '#343a40',
+        color: '#fff',
+        input: 'checkbox',
+        inputValue: 0,
+        inputPlaceholder: ALERTPLACEHOLDERREG,
+        inputValidator: (result) => { return !result && 'Tienes que estar de acuerdo con Términos y Condiciones' },
+        html: ALERTAREGDOM,
+        confirmButtonText: 'OK',
+        focusConfirm: false,
+        preConfirm: () => {
+            const valueinputnick = Swal.getPopup().querySelector('#input--nick').value
+            const valueinputpass = Swal.getPopup().querySelector('#input--pass').value
+            if (!valueinputpass || !valueinputnick) {
+                Swal.showValidationMessage(`Porfavor elija su usuario y una contraseña`)
+            } else {
+                return [
+                    usuarioNuevo = new User(valueinputnick, valueinputpass),
+                    agregarUsuario(usuarioNuevo),
+                    setInLocal('usuarios', usuarios),
+                    updateLocal(),
+                    createUsersList(),
+                    alerts.Registed()
+                ]
+            }
+        }
+    })
+
 }
-
+const checkFetch = () => {
+    return getFromLocal('fetch') ? true : false
+}
 const agregarFetchToUsuarios = () => {
-    fetch("JSON/info.JSON")
-        .then((res) => res.json())
-        .then((data) => {
-            data.forEach((user) => {
-                usuarios.push(user)
+    if (!checkFetch()) {
+        fetch("JSON/info.JSON")
+            .then((res) => res.json())
+            .then((data) => {
+                data.forEach((user) => {
+                    usuarios.push(user)
+                })
+                updateLocal()
+                setInLocal('fetch', true)
+                createUsersList()
+                console.log("se agrego el fetch")
             })
-            updateLocal()
-        })
-        .catch((error) => console.warn(error))
-
+            .catch((error) => console.warn(error))
+    } else {
+        console.log("ya hay un fetch")
+    }
 }
 const agregarUsuario = (object) => {
     usuarios.push(object)
@@ -71,26 +94,10 @@ const verificarUsuario = () => {
     }
 }
 
-///  DOM
 
-toggle.addEventListener('change', (e) => {
-    inputpass.type = e.target.checked ? "text" : "password"
-})
-
-function getFormularioData() {
-    const formulario = document.querySelector('#formulario')
-    formulario.addEventListener("submit", registrarData)
-    function registrarData(eventObject) {
-        eventObject.preventDefault();
-        let inputnick = document.getElementById('input--nick').value
-        let inputpass = document.getElementById('input--pass').value
-        usuarioNuevo = new User(inputnick, inputpass)
-        agregarUsuario(usuarioNuevo)
-        setInLocal('usuarios', usuarios)
-        updateLocal()
-        formulario.addEventListener("click", alerts.Registed())
-        createUsersList()
-    }
+function getRegisterBtn() {
+    const btnlogin = document.getElementById('btn--register')
+    btnlogin.addEventListener("click", alertDeRegistrar)
 }
 function getLoginBtn() {
     const btnlogin = document.getElementById('btn--login')
@@ -101,6 +108,7 @@ function getClearBtn() {
     btnclear.addEventListener("click", () => {
         localStorage.clear()
         verificarUsuario()
+        setInLocal('fetch', false)
         updateLocal()
         eliminateTitleNickname()
         eliminateUserList()
@@ -109,7 +117,7 @@ function getClearBtn() {
     })
 }
 
-
+///DOM
 function checkTitleNickname() {
     setTimeout(() => {
         return document.querySelector('.title--nick') ? true : false
@@ -119,22 +127,23 @@ function eliminateTitleNickname() {
     document.querySelector('.title--nick') == null ? console.log("no hay titulo") : document.querySelector('.title--nick').remove()
 }
 function createTitleNickname(nickname) {
-    let h2 = document.createElement('h2')
-    h2.innerHTML = `Bienvenido! ${nickname}`
+    let h2 = document.createElement('h5')
+    h2.innerHTML = `&#10731 ${nickname}`
     let containerEspecial = document.querySelector('div.container--especial')
     containerEspecial.append(h2)
-    h2.classList.add('p-5')
-    h2.classList.add('title--nick')
+    h2.classList.add('px-2'), h2.classList.add('mb-1'), h2.classList.add('title--nick')
 }
 
-
+const checkUserList = () => {
+    return getFromLocal('userlist') ? true : false
+}
 function eliminateUserList() {
     while (userList.firstChild) {
         userList.removeChild(userList.firstChild);
-    }
+    } setInLocal('userlist', false)
 }
 function createUsersList() {
-    if (usuarios.length > 0) {
+    if ((usuarios.length > 0) && (!checkUserList())) {
         eliminateUserList()
         usuarios.forEach((usuario) => {
             const user = document.createElement('LI')
@@ -151,11 +160,10 @@ function createUsersList() {
         fragmento.appendChild(user)
     }
     userList.appendChild(fragmento)
+    setInLocal('userlist', true)
 }
 
 
-
-///promises , Async & Fetch Local
 const checkTitle = () => {
     return new Promise((resolve, reject) => {
         let titulo = document.querySelector('.title--nick')
@@ -184,7 +192,7 @@ fetch("JSON/info.JSON")
             liuser.classList.add('p-2'), liuser.classList.add('list-group-item'), liuser.classList.add('usuario')
             userList.appendChild(liuser)
         })
-        
+
     })
     .catch((error) => {
         console.warn(error)
@@ -194,7 +202,10 @@ fetch("JSON/info.JSON")
 //calls
 agregarFetchToUsuarios()
 verifyLocalStorageContent()
-createUsersList()
+async function asyncCall(){
+    createUsersList() = await agregarFetchToUsuarios()
+}
+
 getClearBtn()
-getFormularioData()
 getLoginBtn()
+getRegisterBtn()
